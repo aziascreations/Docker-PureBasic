@@ -1,0 +1,6 @@
+# IDEs
+.vs/
+.idea/
+
+# PureBasic's Archives
+*.tgz
