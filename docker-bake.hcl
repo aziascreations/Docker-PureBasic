@@ -3,7 +3,7 @@
 # Tag: <IMAGE>:<version>[-<beta>]-<distro>-<base name>
 
 variable "IMAGE" {
-  default = "git.nibblepoker.lu/aziascreations/purebasic"
+  default = "git.nibblepoker.lu/packages/purebasic"
 }
 
 group "default" {

@@ -1,60 +1,74 @@
 # Docker - PureBasic Compiler Images
-Docker images with the PureBasic compiler intended to be used a building stages for building console programs.
-Both backends are on the `PATH`: `pbcompiler` (asm) and `pbcompilerc` (C).
+Docker images with the PureBasic compiler to use in building stages for console programs. \
+Both backends are directly on the `PATH`: `pbcompiler` (asm) and `pbcompilerc` (C).
 
 
 ## Limitations
-* Requires access to official PureBasic release archives
+* Must be hosted privately
+  * Requires licensed PureBasic archives
 * Cannot compile GUI programs
-* No ARM64/X86 builds yet
+* No ARM64/X86 builds, yet
 
 
 ## Build
+
+### Pre-requisites
+You must frop the required archives in `Archives/` like so:
+```
+Archives/6.41/PureBasic_Linux3_X64_6.41.tgz
+Archives/6.50_beta5/PureBasic_Linux3_beta5_X64_6.50.tgz
+```
+
+Check [docker-bake.hcl](docker-bake.hcl) for more details.
+
+
+### Build options
+| Argument               | Default              | Purpose                                                |
+|------------------------|----------------------|--------------------------------------------------------|
+| `PUREBASIC_ARCHIVE`    | *None*               | Archive path inside `Archives/`                        |
+| `BASE_IMAGE`           | `debian:trixie-slim` | Base image                                             |
+| `PUREBASIC_FIX_MEMCPY` | `1`                  | Fix for the `__wrap_memcpy` link error, `0` to disable |
+
 
 ### All at once
 ```sh
 docker buildx bake            # build everything
 docker buildx bake --print    # list targets and tags
 ```
-Tags will look like `git.nibblepoker.lu/aziascreations/purebasic:6.41-linux3-trixie-slim`, `git.nibblepoker.lu/aziascreations/purebasic:6.50-beta5-linux3-trixie-slim`, ...\
-Set `IMAGE` to use another name, e.g. `IMAGE=purebasic docker buildx bake`.
+
 
 ### Single
 ```sh
-docker build -t git.nibblepoker.lu/aziascreations/purebasic:6.41-linux3-trixie-slim \
+docker build -t git.nibblepoker.lu/packages/purebasic:6.41-linux3-trixie-slim \
   --build-arg PUREBASIC_ARCHIVE=6.41/PureBasic_Linux3_X64_6.41.tgz .
 ```
 
-| Argument | Default | Purpose |
-|---|---|---|
-| `PUREBASIC_ARCHIVE` | | Archive path inside `Archives/` |
-| `BASE_IMAGE` | `debian:trixie-slim` | Base image |
-| `PUREBASIC_FIX_MEMCPY` | `1` | Fix for the `__wrap_memcpy` link error, `0` to disable |
+
+### Tags
+Tags will look like `6.41-linux3-trixie-slim`, `6.50-beta5-linux3-trixie-slim`, ...
 
 
-### Publish
-Images go to the Gitea container registry, as described in [Gitea's docs](https://docs.gitea.com/usage/packages/container/).\
-Log in with a personal access token if you use 2FA, then build and push everything:
+### Publishing
+This step varies depending on your setup. \
+I'll put mine here for reference.
+
+In order to push to a privated org on Gitea, you must change the image name and then run this: 
 ```sh
 docker login git.nibblepoker.lu
 docker buildx bake --push
 ```
 
+For my case, the image name would be `git.nibblepoker.lu/packages/purebasic`.
+
 
 ## Usage
 ```sh
-docker run --rm -v "$PWD":/src -w /src git.nibblepoker.lu/aziascreations/purebasic:6.41-linux3-trixie-slim \
+docker run --rm -v "$PWD":/src -w /src git.nibblepoker.lu/packages/purebasic:6.41-linux3-trixie-slim \
   pbcompiler -t Program.pb -e Build/Program
 ```
 
 
-## Archives
-PureBasic is licensed, so its archives aren't in git. \
-Put them in `Archives/`, one folder per release:
+## License
+All the code in this repo is released in the [Public Domain](LICENSE).
 
-```
-Archives/6.41/PureBasic_Linux3_X64_6.41.tgz
-Archives/6.50_beta5/PureBasic_Linux3_beta5_X64_6.50.tgz
-```
-
-Only X64 archives are supported.
+Please note that this doesn't apply to the required PureBasic archives.
